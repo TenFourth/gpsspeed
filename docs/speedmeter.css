@@ -1,0 +1,196 @@
+*{box-sizing:border-box}
+.speedometer{
+  margin: auto;
+  transform-origin: top left;
+  position:relative; width:520px; aspect-ratio:1;
+  border-radius:50%; overflow:hidden;
+  background: radial-gradient(circle at center, #25282c 0 38%, #111316 39% 61%, #050607 62% 100%);
+  border: 5px solid #a1a1a1;
+  box-shadow: 0 0 0 2px rgba(230,230,230,.5),
+              inset 0 0 10px 3px rgba(230,230,230,.45),
+              inset 0 0 28px 8px rgba(255,255,255,.28),
+              0 0 55px 14px rgba(255,255,255,.1),
+              inset 0 0 45px #000, inset 0 0 30px #000;
+}
+.speedometer:before{
+  content:""; position:absolute; inset:7%;
+  border-radius:50%; border:2px solid #777;
+  box-shadow:0 0 0 7px #111, inset 0 0 12px #000;
+}
+.tick{
+  position:absolute; left:50%; top:50%; width:2px; height:45%;
+  transform-origin:50% 100%; transform:translate(-50%,-100%) rotate(var(--a));
+}
+.tick:before{
+  content:""; display:block; margin:auto; width:var(--w); height:var(--h);
+  background:var(--c); box-shadow:0 0 4px #fff4;
+}
+.label{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%) rotate(var(--a)) translateY(-145px) rotate(calc(-1 * var(--a)));
+  font-size:18px; font-weight:bold;
+}
+.center{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:34px; height:34px; border-radius:50%; z-index:5;
+  background:#7f6666; border:7px solid #222;
+  box-shadow:0 0 0 2px #ed37374f,0 0 7px 3px rgba(255,0,0,.75),0 0 18px 7px rgba(227,78,78,.55),0 0 32px 12px rgba(255,0,0,.15);
+}
+.speedometer .needle{
+  position:absolute; left:50%; top:50%; width:7px; height:42%;
+  transform-origin:50% 100%; transform:translate(-50%,-100%) rotate(-135deg);
+  z-index:4; transition:transform .08s linear;
+}
+.speedometer .needle:before{
+  content:""; position:absolute; left:0; top:0; width:100%; height:100%;
+  background:linear-gradient(90deg,#8b0000,#ff3030,#8b0000);
+  clip-path:polygon(50% 0,100% 100%,50% 92%,0 100%);
+  filter:drop-shadow(0 0 5px #f00);
+}
+.speedometer .digit {
+  position:absolute; left:50%; bottom:25%;
+  transform:translateX(-50%); text-align:center;
+  font-family:monospace; z-index:6;
+}
+#value{font-size:50px; font-weight:bold; letter-spacing:2px}
+.unit{font-size:16px;color:#aaa}
+.red{color:#ff3030}
+.title{
+  position:absolute; top:14%; width:100%; text-align:center;
+  font-size:12px; letter-spacing:5px; color:#bbb;
+  font-style: italic;
+}
+.controls{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  display:flex; gap:10px; align-items:center;
+}
+.datetime {
+  font-size: 22px;
+  font-weight: bolder;
+  font-family: monospace;
+  text-align: center;
+  border-radius: 4px;
+  color: #ccc;
+  padding: 0.2em 0.4em;
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+
+.speedmeter-bottom {
+  position: absolute;
+  background-color: #21292d;
+  text-align: center;
+  bottom: 5%;
+  left: 34%;
+}
+
+div#speedmeterArea {
+  margin: 10px;
+  width: 95%;
+}
+
+button{
+  background:#222;color:#fff;border:1px solid #666;border-radius:6px;
+  padding:7px 12px; cursor:pointer;
+}
+
+.speedmeter-middle-top {
+    position: absolute;
+    width: 36%;
+    top: 30%;
+    left: 32%;
+}
+
+.speed-history {
+  height: 50px;
+}
+
+.accel-meter {
+    width: 100%;
+    margin: 30px auto;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+.accel-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.accel-label .decel {
+    color: #66aaff;
+}
+
+.accel-label .accel {
+    color: #ff5555;
+}
+
+.accel-bar-area {
+    position: relative;
+    height: 16px;
+    border-radius: 4px;
+    background: #111;
+    border: 2px solid #8b8b8b;
+    overflow: hidden;
+}
+
+/* 中央の0 */
+.accel-center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: white;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+/* 減速側 */
+.decel-bar {
+    position: absolute;
+    right: 50%;
+    height: 20px;
+    width: 0%;
+    background: #4488ff;
+    box-shadow: 0 0 8px #4488ff;
+}
+
+/* 加速側 */
+.accel-bar-fill {
+    position: absolute;
+    left: 50%;
+    height: 20px;
+    width: 0%;
+    background: #ff3333;
+    box-shadow: 0 0 8px #ff3333;
+}
+
+.accel-value {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* ±0.25G の基準線 */
+.g-limit {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    border-left: 1px dashed rgba(255,255,255,0.85);
+    z-index: 3;
+}
+
+/* 左 -0.25G */
+.g-limit.left {
+    left: 25%;
+}
+
+/* 右 +0.25G */
+.g-limit.right {
+    left: 75%;
+}

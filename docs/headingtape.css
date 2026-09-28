@@ -1,0 +1,98 @@
+.heading-container {
+    /* width: 98%; */
+    height: 40px;
+    margin: 3px;
+    background: #181818;
+    border: 1px solid #888;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.08),
+        inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* 方位テープ */
+.heading-container .heading-tape {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    height: 30px;
+    white-space: nowrap;
+    transform: translateX(0);
+    will-change: transform;
+}
+
+.heading-container .heading-mark {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    height: 12px;
+    background: #aaa;
+    transform: translateX(-1px);
+}
+
+.heading-container .heading-mark.major {
+    height: 18px;
+    background: #fff;
+}
+
+.heading-container .heading-label {
+    position: absolute;
+    top: 0;
+    width: 50px;
+    margin-left: 12px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.heading-container .heading-degree {
+    position: absolute;
+    top: 0;
+    width: 60px;
+    margin-left: -30px;
+    text-align: center;
+    font-size: 11px;
+    color: #cfcfcf;
+}
+
+/* 中央インジケータ */
+.heading-container .center-indicator {
+    position: absolute;
+    z-index: 10;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #f00;
+    transform: translateX(-50%);
+    box-shadow: 0 0 4px rgba(255, 0, 0, 0.8);
+}
+
+.heading-container .center-arrow {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 14px solid #f00;
+    transform: translateX(-50%);
+}
+
+/* 現在の方位 */
+.heading-container .current-heading {
+    position: absolute;
+    bottom: 3px;
+    left: 49%;
+    transform: translateX(-50%);
+    font-size: 15px;
+    font-weight: bolder;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgb(0, 190, 0);
+}
+
+.heading-container .current-heading span {
+    margin-left: 8px;
+}

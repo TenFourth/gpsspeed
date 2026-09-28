@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="main.css">
+<link rel="stylesheet" href="speedmeter.css">
+<link rel="stylesheet" href="headingtape.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="icon" href="./favicon.ico">
+<title>GPS速度計</title>
+</head>
+
+<body>
+<div class="flex-column full-height">
+  <div class="flex-row content">
+    <!-- 速度メーター -->
+    <div class="item">
+      <div id="speedmeterArea">
+        <div class="speedometer" id="speedmeter">
+          <div class="speedmeter-middle-top">
+            <div class="accel-bar-area">
+              <div class="decel-bar" id="decelBar"></div>
+              <div class="accel-bar-fill" id="accelBar"></div>
+
+              <!-- 0.25G基準線 -->
+              <div class="g-limit left"></div>
+              <div class="g-limit right"></div>
+
+              <!-- 0G -->
+              <div class="accel-center"></div>
+            </div>
+            <div class="speed-history">
+              <canvas id="speedHistoryGraph" class="graph-canvas"></canvas>
+            </div>
+          </div>
+          <div class="title">GPS SPEED</div>
+          <div class="needle" id="needle"></div>
+          <div class="center"></div>
+          <div class="digit"><div id="value">0</div><div class="unit">km/h</div></div>
+          <div class="datetime speedmeter-bottom">
+            <div class="mb-35">
+              <span class="small" id="date">----/--/--</span><span class="small"> </span><span id="time">--:--</span><br>
+            </div>
+            <div>
+              <span class="small">TRIP</span> <span id="tripTime">--:--:--</span><br>
+              <span class="small">&nbsp;&nbsp;&nbsp;</span><span id="trip">-.-</span><span class="small"> km</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading-container">
+        <div id="headingTape" class="heading-tape"></div>
+        <div class="center-indicator"></div>
+        <div class="center-arrow"></div>
+        <div class="current-heading">
+            <span id="headingValue">0</span>°&nbsp;&nbsp;&nbsp;&nbsp;
+            <span id="direction">N</span>
+        </div>
+      </div>
+
+      <div class="altitude">
+        <div class="altitude-title">Altitude</div>
+        <canvas id="altitudeGraph" class="graph-canvas"></canvas>
+        <div class="altitude-text">
+          <img src="img/elevation.svg" class="one-rem">
+          <span id="altitudeValue">---</span>
+          <span class="unit">m</span>
+        </div>
+      </div>
+
+      <div class="flex-row">
+        <!-- 加速度センサー -->
+        <div class="item accelerationMap">
+          <canvas id="accelCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <!-- status -->
+        <div class="flex-column">
+          <div class="flex-horizontal mb-35">
+            <div class="panel">
+              <canvas id="car-adove" width="110" height="110"></canvas>
+            </div>
+            <div class="panel">
+              <canvas id="car-climbing" width="110" height="110"></canvas>
+            </div>
+          </div>
+          <div>
+            <button id="startButton" onclick="startAcceleration()">加速度センサー有効</button><br>
+            <input type="checkbox" id="invertAccX" />X軸反転 <input type="checkbox" id="invertAccY" />Y軸反転<br>
+            <br>
+            <button id="checkUpdateButton" onclick="appUpdate()">Update確認</button>
+            <div id="updateStatus"></div>
+            <br>
+            <button onclick="(confirm('TRIPをリセットしますか？') && resetHold(true))">TRIPリセット</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="status" class="status">位置情報を取得しています...</div>
+</div>
+
+<script>
+let wakeLock = null;
+
+let prevPosition = null;
+let prevTime = Date.now();
+let prevSpeed = 0;
+let startTime = Date.now();
+let trip = 0;
+let degree = 0;
+
+const altitudeHistory = [];
+const speedHistory = [];
+
+setInterval(() => {
+  if (startTime) {
+    const elapsed = new Date(Date.now() - startTime);
+    document.getElementById("trip").textContent = (trip / 1000).toFixed(1);
+    document.getElementById("tripTime").textContent = `${elapsed.getUTCHours()}:${pad(elapsed.getUTCMinutes())}:${pad(elapsed.getUTCSeconds())}`;
+  }
+}, 500);
+
+if ("geolocation" in navigator) {
+    navigator.geolocation.watchPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const alt = position.coords.altitude;
+            const speed = position.coords.speed;
+
+            if (position.timestamp) {
+                const time = new Date(position.timestamp);
+                document.getElementById('date').textContent = `${time.getFullYear()}/${pad(time.getMonth() + 1)}/${pad(time.getDate())}`;
+                document.getElementById("time").textContent =  `${pad(time.getHours())}:${pad(time.getMinutes())}`;
+            } else {
+                document.getElementById('date').textContent = "----/--/--";
+                document.getElementById("time").textContent = "--:--";
+            }
+
+            if (alt !== null) {
+              setAltitude(alt);
+            }
+
+            if (prevPosition !== null) {
+              const distance = calcDistance(lat, lon, prevPosition.lat, prevPosition.lon);  // メートル単位
+              if (distance > 0.7) {
+                trip += distance;
+
+                degree = calcDirection(
+                    prevPosition.lat,
+                    prevPosition.lon,
+                    lat,
+                    lon
+                );
+
+                setHeading(degree);
+                setCarAdove(degree);
+                //document.getElementById("direction").textContent = directionName(degree);
+                //document.getElementById("degree").textContent = degree.toFixed(0) + "°";
+
+                // 誤差を防ぐため秒速1.4メートル→約時速5.04kmより出てる時に取得
+                if (distance > 1.4 && alt !== null && altitudeHistory.length > 5) {  // 直前4サンプルの移動平均で傾斜を求める
+                  const total1 = altitudeHistory.slice(-5, -1).reduce((sum, current) => sum + current, 0);
+                  const total2 = altitudeHistory.slice(-4).reduce((sum, current) => sum + current, 0);
+                  const averageDiff = (total2 / 4) - (total1 / 4);
+                  const angle = Math.asin(averageDiff / distance) * 180 / Math.PI;
+                  setCarClimbing(angle);
+                }
+              }
+            }
+
+            if (speed !== null) {
+                // m/s → km/h
+                const kmh = speed * 3.6;
+                setSpeed(kmh);
+
+                //document.getElementById("speed").textContent = kmh.toFixed(1);
+                document.getElementById("status").textContent = `GPS精度: ${position.coords.accuracy.toFixed(1)} m (${accuracyText(position.coords.accuracy)})`;
+            } else {
+                //document.getElementById("speed").textContent = "--";
+                document.getElementById("status").textContent =
+                    "速度情報を取得できません";
+            }
+
+            prevPosition = {
+                lat: lat,
+                lon: lon,
+                direction: degree
+            };
+        },
+
+        function(error) {
+            document.getElementById("status").textContent =
+                "位置情報エラー: " + error.message;
+        },
+
+        {
+            enableHighAccuracy: true,
+            maximumAge: 1000,
+            timeout: 10000
+        }
+    );
+
+    enableWakeLock();
+} else {
+    document.getElementById("status").textContent =
+        "このブラウザは位置情報に対応していません";
+}
+
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState === "visible") {
+    resetHold();
+
+    if (wakeLock) {
+      enableWakeLock();
+    }
+  }
+});
+
+async function enableWakeLock() {
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+  } catch(err) {
+    console.log(`${err.name}, ${err.message}`);
+  }
+}
+
+function resetHold(resetTrip = false) {
+  prevPosition = null;
+  prevTime = null;
+  startTime = Date.now();
+  if (resetTrip) {
+    trip = 0;
+  }
+
+  speedHistory.length = 0;
+  altitudeHistory.length = 0;
+}
+
+function calcDirection(lat1, lon1, lat2, lon2) {
+    const toRad = deg => deg * Math.PI / 180;
+    const toDeg = rad => rad * 180 / Math.PI;
+
+    const th1 = toRad(lat1);
+    const th2 = toRad(lat2);
+    const deltaRad = toRad(lon2 - lon1);
+
+    // 方位角αを求める 球面正弦余弦定理
+    const y = Math.sin(deltaRad) * Math.cos(th2);
+
+    const x =
+        Math.cos(th1) * Math.sin(th2) -
+        Math.sin(th1) * Math.cos(th2) * Math.cos(deltaRad);
+
+    let bearing = toDeg(Math.atan2(y, x));
+
+    // 0～360度に変換
+    bearing = (bearing + 360) % 360;
+
+    return bearing;
+}
+
+function directionName(degree) {
+
+    const directions = [
+        "北",
+        "北北東",
+        "北東",
+        "東北東",
+        "東",
+        "東南東",
+        "南東",
+        "南南東",
+        "南",
+        "南南西",
+        "南西",
+        "西南西",
+        "西",
+        "西北西",
+        "北西",
+        "北北西"
+    ];
+
+    const index = Math.round(degree / 22.5) % 16;
+
+    return directions[index];
+}
+
+function accuracyText(accuracy) {
+    if (accuracy <= 5) {
+        return "非常に良い";
+    } else if (accuracy <= 10) {
+        return "良い";
+    } else if (accuracy <= 20) {
+        return "精度低下";
+    }
+
+    return "悪い";
+}
+
+function setAltitude(alt) {
+    document.getElementById('altitudeValue').textContent = alt.toFixed(1);
+
+    altitudeHistory.push(alt);
+
+    while (altitudeHistory.length > 120) {
+      altitudeHistory.shift();
+    }
+
+    drawGraph('altitudeGraph', altitudeHistory);
+}
+
+function calcDistance(lat1, lon1, lat2, lon2) {
+    // 地球の半径（m）
+    const R = 6371000;
+
+    // 度 → ラジアン
+    const toRad = deg => deg * Math.PI / 180;
+
+    const th1 = toRad(lat1);
+    const th2 = toRad(lat2);
+
+    const deltaTh = toRad(lat2 - lat1);
+    const deltaLamda = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(deltaTh / 2) ** 2 +
+        Math.cos(th1) *
+        Math.cos(th2) *
+        Math.sin(deltaLamda / 2) ** 2;
+
+    const c =
+        2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+    return R * c;
+}
+
+async function startSensor() {
+    if (
+        typeof DeviceMotionEvent !== "undefined" &&
+        typeof DeviceMotionEvent.requestPermission === "function"
+    ) {
+        const permission =
+            await DeviceMotionEvent.requestPermission();
+
+        if (permission !== "granted") {
+            alert("センサーの使用が許可されませんでした");
+            return;
+        }
+    }
+
+    window.addEventListener("devicemotion", event => {
+    const acc = event.accelerationIncludingGravity;
+
+    if (acc) {
+        document.getElementById('accel_x').textContent = (acc.x ?? 0).toFixed(2);
+        document.getElementById('accel_y').textContent = (acc.x ?? 0).toFixed(2);
+        document.getElementById('accel_z').textContent = (acc.z ?? 0).toFixed(2);
+    //    console.log("X:", acc.x);
+    //    console.log("Y:", acc.y);
+    //    console.log("Z:", acc.z);
+      }
+    });
+}
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./serviceworker.js')
+        .then(registration => {
+            console.log('Service Worker registered');
+        })
+        .catch(error => {
+            console.error('Service Worker registration failed:', error);
+        });
+}
+</script>
+
+<script src="app.js"></script>
+<script src="car-adove.js"></script>
+<script src="speedmeter.js"></script>
+<script src="acceleration.js"></script>
+<script src="graph.js"></script>
+<script src="headingtape.js"></script>
+
+</body>
+</html>
