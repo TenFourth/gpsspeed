@@ -54,7 +54,7 @@ function setAcceleration(ms2) {
     // Gforce mapにも加速度を表示
     if (accelerationSensor === false && prevPosition !== null) {
         const accDir = degree - prevPosition.direction;
-        const v = rotateVectorDeg(0, -ms2, -accDir);  // -ms2 -> 加速した時にy軸はマイナス
+        const v = rotateVectorDeg(0, -ms2, accDir);  // -ms2 -> 加速した時にy軸はマイナス
         pushAcceleration(v.x, v.y);
     }
 }
