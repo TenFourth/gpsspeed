@@ -4,7 +4,7 @@ const value = document.getElementById('value');
 const speed = document.getElementById('speed');
 const toggle = document.getElementById('toggle');
 
-const max = 240;
+const speedMeterMax = 240;
 const speedAlertThreshold = 180
 const startAngle = -135;
 const endAngle = 135;
@@ -12,8 +12,8 @@ const endAngle = 135;
 let speedDigitTarget = 0;
 
 // 30km/h刻みの目盛り
-for(let i=0;i<=max;i+=10){
-  const a = startAngle + (endAngle-startAngle)*(i/max);
+for(let i=0;i<=speedMeterMax;i+=10){
+  const a = startAngle + (endAngle-startAngle)*(i/speedMeterMax);
   const t = document.createElement('div');
   t.className='tick';
   t.style.setProperty('--a',`${a}deg`);
@@ -84,8 +84,9 @@ function rotateVectorDeg(x, y, degrees) {
  * speedmeterに速度をセット
  **/
 function setSpeed(v) {
-  v=Math.max(0,Math.min(max,Number(v)));
-  const angle=startAngle+(endAngle-startAngle)*(v/max);
+  v = v < 1 ? 0 : Math.min(speedMeterMax, Number(v));  // 1キロ未満はゼロ扱い、メーター最大値を超えないよう正規化
+
+  const angle=startAngle+(endAngle-startAngle)*(v/speedMeterMax);
   needle.style.transform=`translate(-50%,-100%) rotate(${angle}deg)`;
   speedDigitTarget = v;
   setAcceleration(getAcceleration(v));  // acceleration bar
