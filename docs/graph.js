@@ -5,6 +5,8 @@ function drawGraph(canvasId, data, grids = 10) {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
+    const RANGE_MIN = 10;  // 範囲が小さすぎる時の制限
+
     // Retinaディスプレイ対応
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
@@ -16,23 +18,25 @@ function drawGraph(canvasId, data, grids = 10) {
     if (data.length < 2) return;
 
     // 補助線
-    const min = Math.min(...data);
-    const max = Math.max(...data);
+    let min = Math.min(...data);
+    let max = Math.max(...data);
+    let range = Math.abs(max - min);
+    if (range < RANGE_MIN) {
+        const center = min + (range / 2);
+        range = RANGE_MIN;
+        min = Math.floor(center - (RANGE_MIN / 2));
+        max = Math.floor(center + (RANGE_MIN / 2));
+    }
+
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
     ctx.fillStyle = "rgba(255,255,255,0.6)";
     ctx.font = "10px Arial";
-    const gridStep = Math.ceil(Math.abs(max - min) / grids);
-    if (gridStep >= 1) {
-        for (let v = min; v <= max; v += gridStep) {
-            const y = height - ((v - min) / Math.abs(min - max)) * height;
-            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();  // 補助線
-            ctx.fillText( v.toFixed(0), 5, y - 3 );  // 値目盛り
-        }
-    } else {  // 全てが同じ値の場合
-        const y = height / 2;
+    const gridStep = Math.ceil(range / grids);
+    for (let v = min; v <= max; v += gridStep) {
+        const y = height - ((v - min) / range) * height;
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();  // 補助線
-        ctx.fillText( min.toFixed(0), 5, y - 3 );  // 値目盛り
+        ctx.fillText( v.toFixed(0), 5, y - 3 );  // 値目盛り
     }
 
     // グラフ
@@ -40,7 +44,7 @@ function drawGraph(canvasId, data, grids = 10) {
 
     data.forEach((v, i) => {
         const x = i / data.length * width;
-        const y = min !== max ? height - ((v - min) / Math.abs(min - max)) * height : height / 2;
+        const y = height - ((v - min) / range) * height;
 
         if (i === 0) {
             ctx.moveTo(x, y);
