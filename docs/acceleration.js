@@ -150,6 +150,9 @@ function draw() {
      * 軌跡
      */
     if (samples.length > 1) {
+        let max = {x: 0, y: 0};
+        let min = {x: 0, y: 0};
+
         ctx.beginPath();
         samples.forEach((_, index) => {
             const s = getSmoothingSample(index);
@@ -160,15 +163,32 @@ function draw() {
             } else {
                 ctx.lineTo(p.x, p.y);
             }
+
+            /*
+            * 数値表示
+            */
+            if (max.x < s.x) {
+                max.x = s.x;
+            }
+            if (max.y < s.y) {
+                max.y = s.y;
+            }
+            if (min.x > s.x) {
+                min.x = s.x;
+            }
+            if (min.y > s.y) {
+                min.y = s.y;
+            }
         });
 
         ctx.strokeStyle = "#00aa11";
         ctx.lineWidth = 3;
 
         ctx.stroke();
+
+        drawAccelText(ctx, max, min);
     }
 
-    drawAccelText(ctx);
 }
 
 function getSmoothingSample(index) {
@@ -216,44 +236,21 @@ function drawPoint(ctx, x, y)
     ctx.fill();
 }
 
-function drawAccelText(ctx) {
-    let maxX = 0;
-    let maxY = 0;
-    let minX = 0;
-    let minY = 0;
-
-    /*
-     * 数値表示
-     */
-    samples.forEach((sample) => {
-        if (maxX < sample.x) {
-            maxX = sample.x;
-        }
-        if (maxY < sample.y) {
-            maxY = sample.y;
-        }
-        if (minX > sample.x) {
-            minX = sample.x;
-        }
-        if (minY > sample.y) {
-            minY = sample.y;
-        }
-    });
-
+function drawAccelText(ctx, max, min) {
     ctx.fillStyle = "#efefef";
     ctx.font = "24px sans-serif";
 
     if (maxX > 1) {
-        ctx.fillText(msToG(maxX).toFixed(1) + 'G', accelCanvas.width - 70, accelCanvas.height / 2 - 30);  // Left側
+        ctx.fillText(msToG(max.x).toFixed(1) + 'G', accelCanvas.width - 70, accelCanvas.height / 2 - 30);  // Left側
     }
     if (maxY > 1) {
-        ctx.fillText(msToG(maxY).toFixed(1) + 'G', accelCanvas.width / 2 - 60, 40);  // Decel側
+        ctx.fillText(msToG(max.y).toFixed(1) + 'G', accelCanvas.width / 2 - 60, 40);  // Decel側
     }
     if (minX < -1) {
-        ctx.fillText(msToG(Math.abs(minX)).toFixed(1) + 'G', 25, accelCanvas.height / 2 - 30);  // Right側
+        ctx.fillText(msToG(Math.abs(min.x)).toFixed(1) + 'G', 25, accelCanvas.height / 2 - 30);  // Right側
     }
     if (minY < -1) {
-        ctx.fillText(msToG(Math.abs(minY)).toFixed(1) + 'G', accelCanvas.width / 2 - 60, accelCanvas.height - 25);  // Accel側
+        ctx.fillText(msToG(Math.abs(min.y)).toFixed(1) + 'G', accelCanvas.width / 2 - 60, accelCanvas.height - 25);  // Accel側
     }
 
     //document.getElementById("accelValue").textContent =
