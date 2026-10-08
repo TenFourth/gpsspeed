@@ -240,16 +240,16 @@ function drawAccelText(ctx, max, min) {
     ctx.fillStyle = "#efefef";
     ctx.font = "24px sans-serif";
 
-    if (maxX > 1) {
+    if (max.x > 1) {
         ctx.fillText(msToG(max.x).toFixed(1) + 'G', accelCanvas.width - 70, accelCanvas.height / 2 - 30);  // Left側
     }
-    if (maxY > 1) {
+    if (max.y > 1) {
         ctx.fillText(msToG(max.y).toFixed(1) + 'G', accelCanvas.width / 2 - 60, 40);  // Decel側
     }
-    if (minX < -1) {
+    if (min.x < -1) {
         ctx.fillText(msToG(Math.abs(min.x)).toFixed(1) + 'G', 25, accelCanvas.height / 2 - 30);  // Right側
     }
-    if (minY < -1) {
+    if (min.y < -1) {
         ctx.fillText(msToG(Math.abs(min.y)).toFixed(1) + 'G', accelCanvas.width / 2 - 60, accelCanvas.height - 25);  // Accel側
     }
 
