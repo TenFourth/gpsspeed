@@ -165,11 +165,12 @@ if ("geolocation" in navigator) {
                 //document.getElementById("direction").textContent = directionName(degree);
                 //document.getElementById("degree").textContent = degree.toFixed(0) + "°";
 
+                const SMOOTHING_ALTITUDE_SAMPLE = 3;
                 // 誤差を防ぐため秒速1.4メートル→約時速5.04kmより出てる時に取得
-                if (distance > 1.4 && alt !== null && altitudeHistory.length > 5) {  // 直前4サンプルの移動平均で傾斜を求める
-                  const total1 = altitudeHistory.slice(-5, -1).reduce((sum, current) => sum + current, 0);
-                  const total2 = altitudeHistory.slice(-4).reduce((sum, current) => sum + current, 0);
-                  const averageDiff = (total2 / 4) - (total1 / 4);
+                if (distance > 1.4 && alt !== null && altitudeHistory.length > SMOOTHING_ALTITUDE_SAMPLE + 1) {  // 直前サンプルの移動平均で傾斜を求める
+                  const total1 = altitudeHistory.slice(-SMOOTHING_ALTITUDE_SAMPLE - 1, -1).reduce((sum, current) => sum + current, 0);
+                  const total2 = altitudeHistory.slice(-SMOOTHING_ALTITUDE_SAMPLE).reduce((sum, current) => sum + current, 0);
+                  const averageDiff = (total2 / SMOOTHING_ALTITUDE_SAMPLE) - (total1 / SMOOTHING_ALTITUDE_SAMPLE);
                   const angle = Math.asin(averageDiff / distance) * 180 / Math.PI;
                   setCarClimbing(angle);
                 }
