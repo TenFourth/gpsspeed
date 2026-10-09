@@ -5,7 +5,7 @@ function drawGraph(canvasId, data, grids = 10) {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
-    const RANGE_MIN = 10;  // 範囲が小さすぎる時の制限
+    const RANGE_MIN = 7;  // 範囲が小さすぎる時の制限
 
     // Retinaディスプレイ対応
     const dpr = window.devicePixelRatio || 1;
