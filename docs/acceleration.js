@@ -9,7 +9,7 @@ let accelerationSensor = false;
 const samples = [];
 const MAX_SAMPLES = 200;
 const SMOOTHING_COUNT = 30;  // 加速度表示の平滑化
-const ACCEL_HOLD_MSEC = 3000;
+const ACCEL_HOLD_MSEC = 5000;
 const correctThreadAcc = 0.3;
 const correctionAngle = {
     correctedAt: Date.now(),
