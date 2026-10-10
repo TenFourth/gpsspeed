@@ -53,7 +53,11 @@ function drawGraph(canvasId, data, grids = 10) {
         }
     });
 
-    ctx.strokeStyle = "#fff";
+    if (range <= RANGE_MIN) {
+        ctx.strokeStyle = "#558bff";
+    } else {
+        ctx.strokeStyle = "#fff";
+    }
     ctx.lineWidth = 2;
     ctx.stroke();
 }
