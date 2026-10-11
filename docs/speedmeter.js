@@ -85,6 +85,21 @@ function isMoveStopped(kmh) {
 }
 
 /**
+ * 停止中の処理
+ */
+function atStopping(kmh) {
+  if (isMoveStopped(kmh)) {
+    const stopped = new Date(Date.now() - stoppedTime);
+    if (stopped.getTime() > 3000) {
+      showSpeedModalInfo(`停止中: ${stopped.getUTCHours()}:${pad(stopped.getUTCMinutes())}:${pad(stopped.getUTCSeconds())}`);
+    }
+  } else {
+    hideSpeedModalWarning();
+    stoppedTime = Date.now();
+  }
+}
+
+/**
  * speedmeterに速度をセット
  **/
 function setSpeed(v) {
@@ -104,15 +119,7 @@ function setSpeed(v) {
   }
   drawGraph('speedHistoryGraph', speedHistory, 4);
 
-  if (isMoveStopped(v)) {
-    const stopped = new Date(Date.now() - stoppedTime);
-    if (stopped.getTime() > 3000) {
-      showSpeedModalInfo(`停止中: ${stopped.getUTCHours()}:${pad(stopped.getUTCMinutes())}:${pad(stopped.getUTCSeconds())}`);
-    }
-  } else {
-    hideSpeedModalWarning();
-    stoppedTime = Date.now();
-  }
+  atStopping(v);
 }
 
 function showSpeedModalInfo(message) {

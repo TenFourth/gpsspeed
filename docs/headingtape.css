@@ -90,7 +90,7 @@
     font-size: 15px;
     font-weight: bolder;
     letter-spacing: 1px;
-    text-shadow: 1px 1px 2px rgb(0, 190, 0);
+    text-shadow: 1px 1px 2px rgb(190, 0, 0);
 }
 
 .heading-container .current-heading span {

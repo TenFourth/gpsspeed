@@ -129,6 +129,8 @@ setInterval(() => {
     const elapsed = new Date(Date.now() - startTime);
     document.getElementById("trip").textContent = (trip / 1000).toFixed(1);
     document.getElementById("tripTime").textContent = `${elapsed.getUTCHours()}:${pad(elapsed.getUTCMinutes())}:${pad(elapsed.getUTCSeconds())}`;
+
+    atStopping(prevSpeed);
   }
 }, 500);
 
