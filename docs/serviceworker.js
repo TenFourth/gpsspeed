@@ -1,5 +1,5 @@
 // キャッシュ更新のために、ファイルの変更があったら変更する
-const CACHE_NAME = 'gpsspeed-pwa-v1.0.16';
+const CACHE_NAME = 'gpsspeed-pwa-v1.0.17';
 
 const CACHE_FILES = [
     'acceleration.js',
@@ -13,7 +13,9 @@ const CACHE_FILES = [
     'speedmeter.js',
     'img/car-adove.png',
     'img/climbing.png',
-    'img/elevation.svg',
+    'img/altitude.svg',
+    'img/info.svg',
+    'img/warning.svg',
     'img/icon-192.png',
     'img/icon-512.png'
 ];
