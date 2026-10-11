@@ -80,6 +80,10 @@ function rotateVectorDeg(x, y, degrees) {
   };
 }
 
+function isMoveStopped(kmh) {
+  return !isNaN(kmh) && kmh < 3;
+}
+
 /**
  * speedmeterに速度をセット
  **/
@@ -99,6 +103,37 @@ function setSpeed(v) {
     speedHistory.shift();
   }
   drawGraph('speedHistoryGraph', speedHistory, 4);
+
+  if (isMoveStopped(v)) {
+    const stopped = new Date(Date.now() - stoppedTime);
+    if (stopped.getTime() > 3000) {
+      showSpeedModalInfo(`停止中: ${stopped.getUTCHours()}:${pad(stopped.getUTCMinutes())}:${pad(stopped.getUTCSeconds())}`);
+    }
+  } else {
+    hideSpeedModalWarning();
+    stoppedTime = Date.now();
+  }
+}
+
+function showSpeedModalInfo(message) {
+  const elem = document.getElementById('speedmeter-modal-area');
+  elem.style.display = 'block';
+  elem.classList = 'speedmeter-modal';
+  document.getElementById('speedmeter-modal-icon').src = "img/info.svg";
+  document.getElementById('speedmeter-modal-message').textContent = message;
+}
+
+function showSpeedModalWarning(message) {
+  const elem = document.getElementById('speedmeter-modal-area');
+  elem.style.display = 'block';
+  elem.classList = 'speedmeter-modal warning';
+  document.getElementById('speedmeter-modal-icon').src = "img/warning.svg";
+  document.getElementById('speedmeter-modal-message').textContent = message;
+}
+
+function hideSpeedModalWarning() {
+  const elem = document.getElementById('speedmeter-modal-area');
+  elem.style.display = 'none';
 }
 
 // 速度の表示値を徐々にtargetに近づける

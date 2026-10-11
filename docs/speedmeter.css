@@ -105,6 +105,23 @@ button{
   height: 50px;
 }
 
+.speedmeter-modal {
+    position: relative;
+    text-align: center;
+    font-size: 18px;
+    margin: auto;
+    padding: 0.7rem 1rem;
+    width: 50%;
+    top: 31%;
+    border: solid white;
+    border-radius: 7px;
+    background-color: #193968d6;
+}
+
+.warning {
+    background-color: #531717d6;
+}
+
 .accel-meter {
     width: 100%;
     margin: 30px auto;

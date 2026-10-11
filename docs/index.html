@@ -48,6 +48,10 @@
               <span class="small">&nbsp;&nbsp;&nbsp;</span><span id="trip">-.-</span><span class="small"> km</span>
             </div>
           </div>
+          <div class="speedmeter-modal" id="speedmeter-modal-area">
+            <img src="" id="speedmeter-modal-icon" class="one-rem"><br>
+            <span id="speedmeter-modal-message"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -67,7 +71,7 @@
         <div class="altitude-title">Altitude</div>
         <canvas id="altitudeGraph" class="graph-canvas"></canvas>
         <div class="altitude-text">
-          <img src="img/elevation.svg" class="one-rem">
+          <img src="img/altitude.svg" class="one-rem">
           <span id="altitudeValue">---</span>
           <span class="unit">m</span>
         </div>
@@ -112,7 +116,8 @@ let wakeLock = null;
 let prevPosition = null;
 let prevTime = Date.now();
 let prevSpeed = 0;
-let startTime = Date.now();
+let stoppedTime = Date.now();  // 停止した時の開始時間
+let startTime = Date.now();  // trip開始時間
 let trip = 0;
 let degree = 0;
 
@@ -188,6 +193,8 @@ if ("geolocation" in navigator) {
                 //document.getElementById("speed").textContent = "--";
                 document.getElementById("status").textContent =
                     "速度情報を取得できません";
+
+                showSpeedModalWarning("速度情報を取得できません");
             }
 
             prevPosition = {
@@ -198,8 +205,8 @@ if ("geolocation" in navigator) {
         },
 
         function(error) {
-            document.getElementById("status").textContent =
-                "位置情報エラー: " + error.message;
+            document.getElementById("status").textContent = "位置情報エラー: " + error.message;
+            showSpeedModalWarning("速度情報を取得できません");
         },
 
         {
