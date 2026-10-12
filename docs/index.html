@@ -115,7 +115,7 @@ let wakeLock = null;
 
 let prevPosition = null;
 let prevTime = Date.now();
-let prevSpeed = 0;
+let prevSpeed = null;
 let stoppedTime = Date.now();  // 停止した時の開始時間
 let startTime = Date.now();  // trip開始時間
 let trip = 0;
@@ -130,7 +130,9 @@ setInterval(() => {
     document.getElementById("trip").textContent = (trip / 1000).toFixed(1);
     document.getElementById("tripTime").textContent = `${elapsed.getUTCHours()}:${pad(elapsed.getUTCMinutes())}:${pad(elapsed.getUTCSeconds())}`;
 
-    atStopping(prevSpeed);
+    if (prevSpeed !== null) {
+      atStopping(prevSpeed);
+    }
   }
 }, 500);
 
@@ -196,6 +198,7 @@ if ("geolocation" in navigator) {
                 document.getElementById("status").textContent =
                     "速度情報を取得できません";
 
+                prevSpeed = null;
                 showSpeedModalWarning("速度情報を取得できません");
             }
 
@@ -207,6 +210,7 @@ if ("geolocation" in navigator) {
         },
 
         function(error) {
+            prevSpeed = null;
             document.getElementById("status").textContent = "位置情報エラー: " + error.message;
             showSpeedModalWarning("速度情報を取得できません");
         },

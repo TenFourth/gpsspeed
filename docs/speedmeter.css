@@ -106,6 +106,7 @@ button{
 }
 
 .speedmeter-modal {
+    display: none;
     position: relative;
     text-align: center;
     font-size: 18px;

@@ -63,6 +63,10 @@ function setAcceleration(ms2) {
  * 時速(km/h)から加速度(m/s^2)を算出
  **/
 function getAcceleration(kmh) {
+    if (prevSpeed === null || kmh === null) {
+      return 0;
+    }
+
     const ms = kmh * 1000 / 3600;
     const prevMs = prevSpeed * 1000 / 3600;
     const deltaTime = (Date.now() - prevTime) / 1000;
@@ -81,7 +85,7 @@ function rotateVectorDeg(x, y, degrees) {
 }
 
 function isMoveStopped(kmh) {
-  return !isNaN(kmh) && kmh < 3;
+  return kmh !== null && kmh < 3;
 }
 
 /**
