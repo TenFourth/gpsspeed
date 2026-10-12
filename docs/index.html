@@ -52,6 +52,14 @@
             <img src="" id="speedmeter-modal-icon" class="one-rem"><br>
             <span id="speedmeter-modal-message"></span>
           </div>
+          <div class="speedmeter-mark-area average" id="speedmeter-mark-average">
+            <div class="speedmeter-mark average"></div>
+            <div class="speedmeter-mark-text average">AVE</div>
+          </div>
+          <div class="speedmeter-mark-area" id="speedmeter-mark-max">
+            <div class="speedmeter-mark"></div>
+            <div class="speedmeter-mark-text">MAX</div>
+          </div>
         </div>
       </div>
     </div>
@@ -116,6 +124,9 @@ let wakeLock = null;
 let prevPosition = null;
 let prevTime = Date.now();
 let prevSpeed = null;
+let maxSpeed = 0;
+let averageSpeed = 0;
+let speedCount = 0;
 let stoppedTime = Date.now();  // 停止した時の開始時間
 let startTime = Date.now();  // trip開始時間
 let trip = 0;
@@ -252,6 +263,9 @@ function resetHold(resetTrip = false) {
   startTime = Date.now();
   if (resetTrip) {
     trip = 0;
+    maxSpeed = 0;
+    averageSpeed = 0;
+    speedCount = 0;
   }
 
   speedHistory.length = 0;

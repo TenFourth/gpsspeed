@@ -110,13 +110,57 @@ button{
     position: relative;
     text-align: center;
     font-size: 18px;
+    line-height: 1.2;
     margin: auto;
     padding: 0.7rem 1rem;
     width: 50%;
-    top: 31%;
+    top: 30%;
     border: solid white;
     border-radius: 7px;
     background-color: #193968d6;
+}
+
+.speedmeter-mark-area {
+  position:absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+}
+
+.speedmeter-mark-area.average {
+  z-index: 14;
+}
+
+.speedmeter-mark {
+  position:absolute;
+  left:18.5%;
+  top:83%;
+  width: 13px;
+  height: 15px;
+  background-color: #ff0000;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  transform-origin:50% 50%; transform:translate(-50%,-100%) rotate(-135deg);
+}
+
+.speedmeter-mark.average {
+  background-color: #8f3aff;
+}
+
+.speedmeter-mark-text {
+  position:absolute;
+  left:16%;
+  top:85%;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ff0000;
+  transform-origin:50% 50%;
+  transform:translate(-50%,-100%) rotate(-135deg);
+}
+
+.speedmeter-mark-text.average {
+  color: #8f3aff;
 }
 
 .warning {

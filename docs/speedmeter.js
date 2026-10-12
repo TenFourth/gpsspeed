@@ -117,6 +117,9 @@ function setSpeed(v) {
   prevSpeed = v;
   prevTime = Date.now();
 
+  maxSpeed = Math.max(maxSpeed, v);
+  setSpeedAverage(v);
+
   speedHistory.push(v);
   while (speedHistory.length > 30) {
     speedHistory.shift();
@@ -124,6 +127,19 @@ function setSpeed(v) {
   drawGraph('speedHistoryGraph', speedHistory, 4);
 
   atStopping(v);
+
+  setMarker("max", maxSpeed);
+  setMarker("average", averageSpeed);
+}
+
+function setSpeedAverage(kmh) {
+  speedCount++;
+  averageSpeed += (kmh - averageSpeed) / speedCount;  // 合計値を使わず、直前の平均の差を足し合わせて算出
+}
+
+function setMarker(type, kmh) {
+  const angle=(endAngle-startAngle) * (kmh / speedMeterMax);
+  document.getElementById(`speedmeter-mark-${type}`).style.transform = `rotate(${angle}deg)`;
 }
 
 function showSpeedModalInfo(message) {
