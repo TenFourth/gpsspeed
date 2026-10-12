@@ -133,6 +133,10 @@ function setSpeed(v) {
 }
 
 function setSpeedAverage(kmh) {
+  if (kmh === null || isMoveStopped(kmh)) {
+    return;  // 走行時の平均を出すために、停止時は除外
+  }
+
   speedCount++;
   averageSpeed += (kmh - averageSpeed) / speedCount;  // 合計値を使わず、直前の平均の差を足し合わせて算出
 }
